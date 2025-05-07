@@ -14,13 +14,6 @@ class Stand < Formula
     app_path = buildpath/"Stand.app"
     target_path = "/Applications/Stand.app"
 
-    # Quit old version if running (uses bundle ID for accurate matching)
-    app_bundle_id = "ash.Stand"
-    if system("pgrep", "-f", app_bundle_id)
-      ohai "Quitting the running version of Stand..."
-      system "osascript", "-e", %(tell application "#{app_name}" to quit)
-    end
-
     # Replace old version if it exists
     if File.exist?(target_path)
       opoo "An older version of Stand is already installed in /Applications. Replacing it..."
