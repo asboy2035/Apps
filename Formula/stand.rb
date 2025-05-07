@@ -9,9 +9,9 @@ class Stand < Formula
     # Unzip to the build directory first
     system "unzip", cached_download, "-d", buildpath
 
-    # Define app paths
-    app_name = "Stand"
-    app_path = buildpath/"Stand.app"
+    # Find the actual .app within the extracted directory
+    extracted_app_path = Dir["#{buildpath}/**/*.app"].first
+    ohai "Found extracted app at: #{extracted_app_path}"
     target_path = "/Applications/Stand.app"
 
     # Replace old version if it exists
@@ -20,8 +20,8 @@ class Stand < Formula
       system "rm", "-rf", target_path
     end
 
-    # Move the new version to /Applications
-    system "mv", app_path, target_path
+    # Move the app to /Applications
+    system "mv", extracted_app_path, target_path
     ohai "Stand has been moved to /Applications."
   end
 
