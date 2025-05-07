@@ -8,16 +8,39 @@ class Stand < Formula
   def install
     # List all files to see what's in the archive
     ohai "Contents of the extracted archive:"
-    system "find", ".", "-type", "f", "-o", "-type", "d"
+    system "ls", "-la"
 
-    # Try different patterns to find the app bundle
-    app_paths = Dir["./*.app", "**/*.app", "*/Stand.app", "**/Stand.app"]
-
-    ohai "Found app paths: #{app_paths.join(', ')}" unless app_paths.empty?
+    # The MAS version might have a different structure
+    # Try to find the app regardless of its exact location
+    app_paths = Dir["**/*.app"]
 
     if app_paths.empty?
-      # No recognized app format found
-      raise "Could not find Stand.app or any recognizable app format in the downloaded archive"
+      # If no .app bundle is found, check for a Stand directory
+      stand_dirs = Dir["**/Stand*"]
+      ohai "Found potential Stand directories: #{stand_dirs.join(', ')}" unless stand_dirs.empty?
+
+      if stand_dirs.empty?
+        raise "Could not find Stand.app or any Stand directory in the downloaded archive"
+      else
+        # Create a simple app wrapper if necessary
+        stand_dir = stand_dirs.first
+        ohai "Using Stand directory: #{stand_dir}"
+
+        # Move the directory to a .app bundle if it's not already one
+        unless stand_dir.end_with?(".app")
+          app_name = "Stand.app"
+          mkdir_p app_name
+          cp_r "#{stand_dir}/.", app_name
+          app_paths = [app_name]
+        end
+      end
+    else
+      ohai "Found app paths: #{app_paths.join(', ')}"
+    end
+
+    if app_paths.empty?
+      # Still no app found after our attempts
+      raise "Could not find or create Stand.app in the downloaded archive"
     else
       # Install the first app found
       app_path = app_paths.first
@@ -29,14 +52,15 @@ class Stand < Formula
   def caveats
     <<~EOS
       Stand has been installed to:
-        #{opt_prefix}/Stand.app
+        #{opt_prefix}/#{File.basename(Dir["#{opt_prefix}/*.app"].first || "Stand.app")}
 
       To link it to your Applications folder, run:
-        ln -s #{opt_prefix}/Stand.app /Applications/Stand.app
+        ln -s "#{opt_prefix}/#{File.basename(Dir["#{opt_prefix}/*.app"].first || "Stand.app")}" "/Applications/Stand.app"
     EOS
   end
 
   test do
-    assert_predicate opt_prefix/"Stand.app", :exist?, "Stand.app was not installed to the expected location"
+    app_path = Dir["#{opt_prefix}/*.app"].first || "#{opt_prefix}/Stand.app"
+    assert_predicate Pathname.new(app_path), :exist?, "Stand.app was not installed to the expected location"
   end
 end
