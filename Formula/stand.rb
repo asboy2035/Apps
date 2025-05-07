@@ -6,8 +6,22 @@ class Stand < Formula
   license "Apache-2.0"
 
   def install
-    # Move the .app bundle to the correct place in the Cellar
-    app_path = Dir["**/*.app"].first
+    # Look for the app bundle in the correct location after extraction
+    app_path = Dir["Stand.app", "*/Stand.app", "**/Stand.app"].first
+
+    if app_path.nil?
+      # If the app wasn't found with the expected patterns, list the contents to debug
+      ohai "Contents of the extracted archive:"
+      system "ls", "-la"
+      # Try to find any .app bundle as a fallback
+      app_path = Dir["**/*.app"].first
+    end
+
+    # Verify we found something before installing
+    if app_path.nil?
+      raise "Could not find Stand.app in the downloaded archive"
+    end
+
     prefix.install app_path
   end
 
