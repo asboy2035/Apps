@@ -6,8 +6,9 @@ class Stand < Formula
   license "Apache-2.0"
 
   def install
-    # Create a subdirectory for the app bundle
-    prefix.install Dir["*"]
+    # Move the .app bundle to the correct place in the Cellar
+    app_path = Dir["**/*.app"].first
+    prefix.install app_path
   end
 
   def caveats
@@ -15,12 +16,14 @@ class Stand < Formula
       Stand has been installed to:
         #{opt_prefix}/Stand.app
 
-      To make it available in the Applications folder, you can:
+      To link it to your Applications folder, run:
         ln -s #{opt_prefix}/Stand.app /Applications/Stand.app
+
+      Or use a launcher like Raycast or Alfred for a more integrated experience. 💅
     EOS
   end
 
   test do
-    assert_predicate prefix/"Stand.app", :exist?, "Stand.app was not installed to the expected location"
+    assert_predicate opt_prefix/"Stand.app", :exist?, "Stand.app was not installed to the expected location"
   end
 end
