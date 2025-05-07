@@ -6,12 +6,34 @@ class Stand < Formula
   license "Apache-2.0"
 
   def install
-    # Unzip the app to the prefix directory
-    system "unzip", cached_download, "-d", prefix
+    # Unzip to the build directory first
+    system "unzip", cached_download, "-d", buildpath
+
+    # Define app paths
+    app_name = "Stand.app"
+    app_path = buildpath/app_name
+    target_path = "/Applications/#{app_name}"
+
+    # Quit old version if running
+    app_bundle_id = "com.asboy2035.Stand"
+    if system("pgrep -f #{app_bundle_id}")
+      ohai "Quitting the running version of Stand..."
+      system "osascript", "-e", %(tell application "#{app_name.sub('.app', '')}" to quit)
+    end
+
+    # Replace old version if it exists
+    if File.exist?(target_path)
+      opoo "An older version of Stand is already installed in /Applications. Replacing it..."
+      system "rm", "-rf", target_path
+    end
+
+    # Move the new version to /Applications
+    system "mv", app_path, target_path
+    ohai "Stand has been moved to /Applications."
   end
 
   test do
-    # Test if the app exists by checking if the .app directory is present
-    assert_predicate prefix/"Stand.app", :exist?, "Stand.app was not installed"
+    # Verify that the .app was successfully installed to /Applications
+    assert_predicate Pathname("/Applications/Stand.app"), :exist?, "Stand.app was not installed to /Applications"
   end
 end
