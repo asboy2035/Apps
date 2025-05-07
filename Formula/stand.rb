@@ -6,14 +6,12 @@ class Stand < Formula
   license "Apache-2.0"
 
   def install
-    # Unzip the app and move it to the correct location
-    system "unzip", "Stand-3.5-MAS.zip"
-    prefix.install "Stand.app"
-    bin.install_symlink prefix/"Stand.app/Contents/MacOS/Stand"
+    # Unzip the app to the prefix directory
+    system "unzip", cached_download, "-d", prefix
   end
 
   test do
-    # Test if the app exists by attempting to open it (macOS-specific)
-    system "open", "#{prefix}/Stand.app"
+    # Test if the app exists by checking if the .app directory is present
+    assert_predicate prefix/"Stand.app", :exist?, "Stand.app was not installed"
   end
 end
