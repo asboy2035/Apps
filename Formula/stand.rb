@@ -10,15 +10,14 @@ class Stand < Formula
     system "unzip", cached_download, "-d", buildpath
 
     # Define app paths
-    app_name = "Stand.app"
-    app_path = buildpath/app_name
-    target_path = "/Applications/#{app_name}"
+    app_name = "Stand"
+    app_path = buildpath/"Stand.app"
+    target_path = "/Applications/Stand.app"
 
     # Quit old version if running
-    app_bundle_id = "com.asboy2035.Stand"
-    if system("pgrep -f #{app_bundle_id}")
+    if system("pgrep", "-x", app_name)
       ohai "Quitting the running version of Stand..."
-      system "osascript", "-e", %(tell application "#{app_name.sub('.app', '')}" to quit)
+      system "osascript", "-e", %(tell application "#{app_name}" to quit)
     end
 
     # Replace old version if it exists
