@@ -1,4 +1,4 @@
-cask stand do
+cask "stand" do
   desc "Keep track of sitting/standing time (standing desks)!"
   homepage "https://asboy2035.com/apps/stand"
   url "https://github.com/asboy2035/Stand/releases/download/3.5/Stand-3.5-MAS.zip"
