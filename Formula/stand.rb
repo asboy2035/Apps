@@ -6,23 +6,24 @@ class Stand < Formula
   license "Apache-2.0"
 
   def install
-    # Look for the app bundle in the correct location after extraction
-    app_path = Dir["Stand.app", "*/Stand.app", "**/Stand.app"].first
+    # List all files to see what's in the archive
+    ohai "Contents of the extracted archive:"
+    system "find", ".", "-type", "f", "-o", "-type", "d"
 
-    if app_path.nil?
-      # If the app wasn't found with the expected patterns, list the contents to debug
-      ohai "Contents of the extracted archive:"
-      system "ls", "-la"
-      # Try to find any .app bundle as a fallback
-      app_path = Dir["**/*.app"].first
+    # Try different patterns to find the app bundle
+    app_paths = Dir["./*.app", "**/*.app", "*/Stand.app", "**/Stand.app"]
+
+    ohai "Found app paths: #{app_paths.join(', ')}" unless app_paths.empty?
+
+    if app_paths.empty?
+      # No recognized app format found
+      raise "Could not find Stand.app or any recognizable app format in the downloaded archive"
+    else
+      # Install the first app found
+      app_path = app_paths.first
+      ohai "Installing app: #{app_path}"
+      prefix.install app_path
     end
-
-    # Verify we found something before installing
-    if app_path.nil?
-      raise "Could not find Stand.app in the downloaded archive"
-    end
-
-    prefix.install app_path
   end
 
   def caveats
@@ -32,8 +33,6 @@ class Stand < Formula
 
       To link it to your Applications folder, run:
         ln -s #{opt_prefix}/Stand.app /Applications/Stand.app
-
-      Or use a launcher like Raycast or Alfred for a more integrated experience. 💅
     EOS
   end
 
